@@ -30,7 +30,7 @@ services:
     build: ./frontend
     container_name: cyber_frontend
     ports:
-      - "80:5173" # ให้กรรมการเข้าเว็บผ่าน http://localhost (พอร์ต 80)
+      - "80:5173" # เข้าเว็บผ่าน http://localhost (พอร์ต 80)
     depends_on:
       - backend
     restart: always
