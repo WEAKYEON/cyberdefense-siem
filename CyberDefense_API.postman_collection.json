@@ -1,0 +1,65 @@
+{
+    "info": {
+        "name": "CyberDefense SIEM API",
+        "description": "API Collection สำหรับทดสอบระบบ CyberDefense Log Management",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "1. Ingest Log (HTTP JSON)",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"tenant\":\"demoA\",\n  \"source\":\"api\",\n  \"event_type\":\"app_login_failed\",\n  \"user\":\"alice\",\n  \"ip\":\"203.0.113.7\",\n  \"reason\":\"wrong_password\"\n}",
+                    "options": {
+                        "raw": {
+                            "language": "json"
+                        }
+                    }
+                },
+                "url": {
+                    "raw": "http://localhost:5000/ingest",
+                    "protocol": "http",
+                    "host": [
+                        "localhost"
+                    ],
+                    "port": "5000",
+                    "path": [
+                        "ingest"
+                    ]
+                }
+            }
+        },
+        {
+            "name": "2. Get Logs (Admin)",
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "http://localhost:5000/logs?tenant=all",
+                    "protocol": "http",
+                    "host": [
+                        "localhost"
+                    ],
+                    "port": "5000",
+                    "path": [
+                        "logs"
+                    ],
+                    "query": [
+                        {
+                            "key": "tenant",
+                            "value": "all"
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}

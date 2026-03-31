@@ -1,0 +1,39 @@
+services:
+  # 1. Database (PostgreSQL)
+  db:
+    image: postgres:15-alpine
+    container_name: cyber_db
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: adminpassword
+      POSTGRES_DB: log_management
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: always
+
+  # 2. Backend (Node.js API)
+  backend:
+    build: ./backend
+    container_name: cyber_backend
+    ports:
+      - "5000:5000"
+    environment:
+      - DATABASE_URL=postgresql://admin:adminpassword@db:5432/log_management
+    depends_on:
+      - db
+    restart: always
+
+  # 3. Frontend (React + Vite)
+  frontend:
+    build: ./frontend
+    container_name: cyber_frontend
+    ports:
+      - "80:5173" # ให้กรรมการเข้าเว็บผ่าน http://localhost (พอร์ต 80)
+    depends_on:
+      - backend
+    restart: always
+
+volumes:
+  pgdata:
