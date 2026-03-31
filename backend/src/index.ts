@@ -66,9 +66,9 @@ app.post('/ingest', async (req: Request, res: Response): Promise<any> => {
 
                 if (failCount >= 3) {
                     const alertMessage = `ตรวจพบการเข้าสู่ระบบล้มเหลวผิดปกติ (${failCount} ครั้ง) จาก IP: ${ip}`;
-                    console.log(`🚨 [ALERT TRIGGERED]: ${alertMessage}`);
+                    console.log(`[ALERT TRIGGERED]: ${alertMessage}`);
 
-                    // 🚨 แก้ไขตรงนี้: เพิ่ม tenant ลงไปในคำสั่ง INSERT
+                    // เพิ่ม tenant ลงไปในคำสั่ง INSERT
                     await pool.query(
                         `INSERT INTO alerts (tenant, rule_name, message, src_ip, severity) VALUES ($1, $2, $3, $4, $5)`,
                         [normalized.tenant, 'Brute Force Login', alertMessage, ip, 10]
@@ -113,7 +113,7 @@ app.get('/alerts', async (req: Request, res: Response) => {
         let query = 'SELECT * FROM alerts ';
         let params: any[] = [];
 
-        // 🚨 แก้ไขตรงนี้: ทำให้ดึงข้อมูล Alert ตาม Tenant ได้เหมือนกับตาราง Logs
+        // ทำให้ดึงข้อมูล Alert ตาม Tenant ได้เหมือนกับตาราง Logs
         if (tenant && tenant !== 'all') {
             query += 'WHERE tenant = $1 ';
             params.push(tenant);

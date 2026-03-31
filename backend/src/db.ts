@@ -35,7 +35,7 @@ export const initDB = async () => {
     CREATE TABLE IF NOT EXISTS alerts (
       id SERIAL PRIMARY KEY,
       timestamp TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-      tenant VARCHAR(50) NOT NULL, -- 👈 เพิ่ม Tenant เพื่อให้ทำ RBAC ได้สมบูรณ์
+      tenant VARCHAR(50) NOT NULL, -- เพิ่ม Tenant เพื่อให้ทำ RBAC ได้สมบูรณ์
       rule_name VARCHAR(100),
       message TEXT,
       src_ip VARCHAR(50),
@@ -48,7 +48,7 @@ export const initDB = async () => {
     CREATE INDEX IF NOT EXISTS idx_alerts_tenant ON alerts(tenant);
   `);
 
-  console.log('✅ Database initialized with unified_logs and alerts tables (with Indexes!)');
+  console.log('Database initialized with unified_logs and alerts tables (with Indexes!)');
 };
 
 export default pool;

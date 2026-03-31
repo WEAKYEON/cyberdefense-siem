@@ -31,13 +31,13 @@ interface UserProfile {
 }
 
 function App() {
-  // 🔐 State สำหรับระบบ Login
+  // State สำหรับระบบ Login
   const [user, setUser] = useState<UserProfile | null>(null);
   const [usernameInput, setUsernameInput] = useState('');
   const [passwordInput, setPasswordInput] = useState('');
   const [loginError, setLoginError] = useState('');
 
-  // 📊 State สำหรับ Dashboard
+  // State สำหรับ Dashboard
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [alerts, setAlerts] = useState<AlertEntry[]>([]);
   const [loading, setLoading] = useState(false);
