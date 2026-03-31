@@ -17,7 +17,7 @@
 **2. ติดตั้งระบบผ่าน Docker**
 SSH เข้าไปยัง VM Instance แล้วทำการรันระบบ:
 ```bash
-git clone <repository_url> cyberdefense-siem
+git clone https://github.com/WEAKYEON/cyberdefense-siem.git
 cd cyberdefense-siem
 docker-compose up --build -d
 ```
