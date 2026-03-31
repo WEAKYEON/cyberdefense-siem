@@ -1,52 +1,79 @@
 # CyberDefense SIEM (Log Management Demo)
 
+**Live Cloud Demo:** [http://34.171.150.190](http://34.171.150.190)
+
 โปรเจกต์ระบบศูนย์กลางจัดเก็บและวิเคราะห์ข้อมูลจราจรทางคอมพิวเตอร์ (Log Management System / SIEM) พัฒนาขึ้นสำหรับการทดสอบภาคปฏิบัติ Full-Stack Developer (Intern) 
 
 ระบบนี้รองรับการรับข้อมูลจากหลายแหล่ง (Multiple Ingestion Sources), ทำการแปลงข้อมูลให้อยู่ในรูปแบบมาตรฐาน (Normalization), จัดเก็บ, แจ้งเตือน (Alerting) และแสดงผลผ่าน Dashboard พร้อมระบบจัดการสิทธิ์ผู้ใช้งาน (RBAC)
 
+---
+
+## Tech Stack
+- **Frontend:** React (Vite), TypeScript, Tailwind CSS, Recharts, Lucide React
+- **Backend:** Node.js (Express), TypeScript, Docker-compose
+- **Database:** PostgreSQL (Relational Data Storage)
+- **Ingestion:** Syslog UDP (Port 514), HTTP JSON API (Port 5000)
+
 ## ฟีเจอร์หลัก (Key Features)
 - **Multi-protocol Ingestion:** รองรับการรับ Log ผ่าน `HTTP POST (JSON)` และ `Syslog (UDP Port 514)`
-- **Data Normalization:** แปลงข้อมูลจากต่างแหล่ง (Firewall, API, AD, CrowdStrike) ให้อยู่ใน Schema กลาง
-- **Real-time Dashboard:** แสดงผลสถิติ กราฟ และประวัติ Log ล่าสุด
-- **Brute Force Alerting:** ระบบตรวจจับและแจ้งเตือนเมื่อมีการล็อกอินล้มเหลวเกินกำหนด (3 ครั้งใน 5 นาที)
-- **RBAC & Multi-tenant:** แยกสิทธิ์การมองเห็นข้อมูลระหว่าง Admin และ Customer (Viewer)
-- **Data Retention:** ระบบทำความสะอาดลบ Log ที่เก่ากว่า 7 วันโดยอัตโนมัติ
-
-## วิธีการติดตั้งและรันระบบ (Appliance Mode)
-ระบบถูกแพ็กเกจด้วย Docker Compose เพื่อให้ง่ายต่อการติดตั้งและทดสอบบนเครื่องเดียว (VM / Local Machine)
-
-**คำสั่งรันระบบ:**
-```bash
-docker-compose up --build -d
-```
-*(ระบบจะใช้เวลา Build Frontend และ Backend ประมาณ 1-2 นาที)*
-
-**การเข้าใช้งาน:**
-เมื่อ Container ทั้ง 3 ตัว (db, backend, frontend) รันสำเร็จ สามารถเข้าใช้งานได้ที่:
-**URL:** http://localhost
+- **Data Normalization:** มี Parser สำหรับแปลง Log จากแหล่งต่างๆ ให้อยู่ใน Schema มาตรฐานเดียวกัน
+- **Real-time Dashboard:** แสดงสถิติภาพรวม (Event Types) และประวัติ Log ล่าสุดแยกตามรายชื่อผู้ใช้
+- **Role-Based Access Control (RBAC):** แยกสิทธิ์การมองเห็นข้อมูลอย่างชัดเจนระหว่าง Super Admin และ Customer (Multi-tenant)
+- **Brute Force Alerting:** ระบบตรวจจับอัตโนมัติเมื่อมีการ Login ล้มเหลวเกิน 3 ครั้งภายใน 5 นาที
+- **Automated Maintenance:** ระบบ Clean-up ข้อมูลอัตโนมัติเพื่อรักษาประสิทธิภาพของฐานข้อมูล
 
 ## บัญชีสำหรับทดสอบ (Demo Accounts)
-เพื่อทดสอบระบบ Role-Based Access Control (RBAC) กรุณาใช้บัญชีดังต่อไปนี้:
+| Role | Username | Password | Visibility |
+| :--- | :--- | :--- | :--- |
+| **Super Admin** | `admin` | `admin` | ดูข้อมูลได้ทุก Tenant |
+| **Customer A** | `user_a` | `password` | ดูได้เฉพาะ Tenant 'demoA' |
 
-1. **Super Admin** (ดูได้ทุก Tenant)
-   - Username: `admin`
-   - Password: `admin`
-2. **Customer A** (ดูได้เฉพาะข้อมูลของ Tenant 'demoA')
-   - Username: `user_a`
-   - Password: `password`
+---
+
+## การติดตั้งและรันระบบ (Local Development)
+
+### 1. เตรียมไฟล์ Environment
+สร้างไฟล์ `.env` ที่ Root Directory โดยอ้างอิงจาก `.env.example`:
+```env
+DATABASE_URL=postgresql://admin:adminpassword@db:5432/log_management
+PORT=5000
+VITE_API_URL=http://localhost:5000
+```
+### 2. สั่งรันระบบด้วย Docker
+```Bash
+docker-compose up --build -d
+```
+**เข้าใช้งานหน้าเว็บได้ที่**: http://localhost
+
+---
+
 
 ## การทดสอบยิง Log (Ingestion Test)
-ท่านสามารถทดสอบยิง Log เข้าระบบได้ 2 ช่องทาง:
-1. **HTTP API (Port 5000):** `POST http://localhost:5000/ingest` (มีไฟล์ Postman Collection แนบมาในโฟลเดอร์)
-2. **Syslog UDP (Port 514):** สามารถเลือกทดสอบได้ 2 วิธี:
-   - **วิธีที่ 1 (Linux/Mac):** ใช้คำสั่ง Netcat
-     ```bash
-     echo "<134>Aug 20 12:44:56 fw01 vendor=demo action=deny src=10.0.1.10" | nc -u -w1 127.0.0.1 514
-     ```
-   - **วิธีที่ 2 (Windows/Cross-platform):** รันสคริปต์จำลองที่เตรียมไว้ให้ (ผ่าน Node.js)
-     ```bash
-     node samples/send_syslog.js
-     ```
+1. **ผ่าน HTTP API (Port 5000):**
+**Endpoint:** `POST /api/logs`
+**Example Payload:**
+
+```JSON
+{
+  "tenant": "demoA",
+  "source": "Firewall",
+  "event_type": "Failed Login",
+  "severity": 4,
+  "src_ip": "192.168.1.100",
+  "user_name": "hacker_test"
+}
+```
+2. **ผ่าน Syslog UDP (Port 514)**
+- **วิธีที่ 1 (Linux/Mac):** ใช้คำสั่ง Netcat (Linux/Mac) เพื่อจำลองการส่ง Syslog มาตรฐาน:
+```Bash
+echo "<134>Mar 31 12:44:56 fw01 action=deny src=10.0.1.50 tenant=demoA" | nc -u -w1 127.0.0.1 514
+```
+
+- **วิธีที่ 2 (Windows/Cross-platform):** รันสคริปต์จำลองที่เตรียมไว้ให้ 
+```Bash
+node samples/send_syslog.js
+```
+
 ## การทดสอบระบบ (Testing & DX)
 โปรเจกต์นี้ได้เตรียมโครงสร้างสำหรับการทำ Unit/Integration Test ไว้ในโฟลเดอร์ `/tests` 
 ครอบคลุมการทดสอบ API Ingestion, Alert Generation และ Data Normalization
@@ -55,3 +82,7 @@ docker-compose up --build -d
 ```bash
 make test
 ```
+
+---
+
+Developed by: Tanat Kunharee
