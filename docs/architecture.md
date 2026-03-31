@@ -12,6 +12,7 @@ graph TD
         API[HTTP API]
         CS[CrowdStrike]
         AD[Microsoft AD]
+        M365[Microsoft 365]
     end
 
     %% Ingestion Layer
@@ -25,6 +26,7 @@ graph TD
         API -.->|JSON POST| HTTP
         CS -.->|JSON POST| HTTP
         AD -.->|JSON POST| HTTP
+        M365 -.->|JSON POST| HTTP
         
         UDP --> NORM
         HTTP --> NORM
