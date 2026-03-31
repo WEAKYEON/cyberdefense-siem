@@ -49,8 +49,7 @@ function App() {
     e.preventDefault();
     setLoginError('');
     try {
-      // 🚨 เปลี่ยนจาก localhost:5000 เป็นตัวแปร URL ให้ยืดหยุ่นขึ้น (ใช้ localhost ตอน Dev ได้)
-      const API_BASE_URL = window.location.hostname === 'localhost' ? 'http://localhost:5000' : '/api';
+      const API_BASE_URL = `http://${window.location.hostname}:5000`;
 
       const res = await axios.post(`${API_BASE_URL}/login`, {
         username: usernameInput,
@@ -79,8 +78,7 @@ function App() {
     const fetchData = async () => {
       setLoading(true);
       try {
-        // 🚨 เหมือนด้านบน ใช้ตัวแปรเพื่อความยืดหยุ่น
-        const API_BASE_URL = window.location.hostname === 'localhost' ? 'http://localhost:5000' : '/api';
+        const API_BASE_URL = `http://${window.location.hostname}:5000`;
 
         const [logsRes, alertsRes] = await Promise.all([
           axios.get(`${API_BASE_URL}/logs?tenant=${user.tenant}`),
