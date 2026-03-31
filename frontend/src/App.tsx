@@ -42,6 +42,9 @@ function App() {
   const [alerts, setAlerts] = useState<AlertEntry[]>([]);
   const [loading, setLoading] = useState(false);
 
+  // NEW: State สำหรับเก็บค่า Dropdown Filter
+  const [filterSource, setFilterSource] = useState('All');
+
   // --------------------------------------------------------
   // ฟังก์ชันจัดการ Login / Logout
   // --------------------------------------------------------
@@ -67,6 +70,7 @@ function App() {
     setAlerts([]);
     setUsernameInput('');
     setPasswordInput('');
+    setFilterSource('All'); // Reset filter ตอน Logout
   };
 
   // --------------------------------------------------------
@@ -166,7 +170,12 @@ function App() {
   // --------------------------------------------------------
   // หน้าจอ Dashboard (ล็อกอินสำเร็จแล้ว)
   // --------------------------------------------------------
-  const eventTypeCounts = logs.reduce((acc: any, log) => {
+
+  // NEW: สร้างตัวแปร filteredLogs เพื่อกรองข้อมูลตาม Dropdown ก่อนนำไปแสดงผล
+  const filteredLogs = logs.filter(log => filterSource === 'All' || log.source === filterSource);
+
+  // คำนวณกราฟจากข้อมูลที่ถูก Filter แล้ว (ถ้าเลือก Firewall กราฟก็เปลี่ยนตาม)
+  const eventTypeCounts = filteredLogs.reduce((acc: any, log) => {
     acc[log.event_type] = (acc[log.event_type] || 0) + 1;
     return acc;
   }, {});
@@ -232,7 +241,8 @@ function App() {
                   </div>
                   <div>
                     <p className="text-sm text-slate-500 font-medium">Total Events Detected</p>
-                    <p className="text-3xl font-bold text-slate-800">{logs.length}</p>
+                    {/* เปลี่ยนมาใช้ length ของ filteredLogs แทน */}
+                    <p className="text-3xl font-bold text-slate-800">{filteredLogs.length}</p>
                   </div>
                 </div>
               </div>
@@ -254,9 +264,27 @@ function App() {
             </div>
 
             <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden mt-8">
-              <div className="p-6 border-b border-slate-200">
+              {/* NEW: เพิ่ม Dropdown ที่มุมขวาของตาราง */}
+              <div className="p-6 border-b border-slate-200 flex justify-between items-center">
                 <h2 className="text-lg font-semibold text-slate-700">Recent Logs Timeline</h2>
+
+                <div className="flex items-center space-x-2">
+                  <label className="text-sm font-medium text-slate-600">Filter by Source:</label>
+                  <select
+                    className="border border-slate-300 rounded-lg px-3 py-1.5 text-sm bg-white focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition-colors"
+                    value={filterSource}
+                    onChange={(e) => setFilterSource(e.target.value)}
+                  >
+                    <option value="All">All Sources</option>
+                    <option value="api">API</option>
+                    <option value="firewall">Firewall</option>
+                    <option value="crowdstrike">CrowdStrike</option>
+                    <option value="ad">Microsoft AD</option>
+                    <option value="m365">Microsoft 365</option>
+                  </select>
+                </div>
               </div>
+
               <div className="overflow-x-auto">
                 <table className="w-full text-sm text-left text-slate-600">
                   <thead className="bg-slate-50 text-slate-700 border-b border-slate-200">
@@ -269,7 +297,8 @@ function App() {
                     </tr>
                   </thead>
                   <tbody>
-                    {logs.map((log) => (
+                    {/* นำ filteredLogs มาวนลูปแสดงผลแทน logs ตัวเดิม */}
+                    {filteredLogs.map((log) => (
                       <tr key={log.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
                         <td className="px-6 py-4">{new Date(log.timestamp).toLocaleString('th-TH')}</td>
                         <td className="px-6 py-4"><span className="px-2 py-1 bg-slate-100 rounded text-xs font-medium text-slate-600">{log.tenant}</span></td>
@@ -278,9 +307,9 @@ function App() {
                         <td className="px-6 py-4 font-mono text-xs">{log.src_ip || '-'}</td>
                       </tr>
                     ))}
-                    {logs.length === 0 && (
+                    {filteredLogs.length === 0 && (
                       <tr>
-                        <td colSpan={5} className="px-6 py-8 text-center text-slate-500">No logs found for this tenant.</td>
+                        <td colSpan={5} className="px-6 py-8 text-center text-slate-500">No logs found for the selected filter.</td>
                       </tr>
                     )}
                   </tbody>
