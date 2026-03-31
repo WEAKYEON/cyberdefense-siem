@@ -31,8 +31,14 @@ interface UserProfile {
 }
 
 function App() {
-  // State สำหรับระบบ Login
-  const [user, setUser] = useState<UserProfile | null>(null);
+  // --------------------------------------------------------
+  // State สำหรับระบบ Login (อัปเดต: ดึงค่าจาก localStorage ถ้ามี)
+  // --------------------------------------------------------
+  const [user, setUser] = useState<UserProfile | null>(() => {
+    const savedUser = localStorage.getItem('siem_user');
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
+
   const [usernameInput, setUsernameInput] = useState('');
   const [passwordInput, setPasswordInput] = useState('');
   const [loginError, setLoginError] = useState('');
@@ -42,7 +48,7 @@ function App() {
   const [alerts, setAlerts] = useState<AlertEntry[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // NEW: State สำหรับเก็บค่า Dropdown Filter
+  // State สำหรับเก็บค่า Dropdown Filter
   const [filterSource, setFilterSource] = useState('All');
 
   // --------------------------------------------------------
@@ -58,7 +64,11 @@ function App() {
         username: usernameInput,
         password: passwordInput
       });
+
       setUser(res.data);
+      // อัปเดต: เซฟข้อมูลลง localStorage เพื่อจำการล็อกอิน
+      localStorage.setItem('siem_user', JSON.stringify(res.data));
+
     } catch (err) {
       setLoginError('Username หรือ Password ไม่ถูกต้อง');
     }
@@ -71,6 +81,9 @@ function App() {
     setUsernameInput('');
     setPasswordInput('');
     setFilterSource('All'); // Reset filter ตอน Logout
+
+    // อัปเดต: ลบข้อมูลออกจาก localStorage ตอนออกจากระบบ
+    localStorage.removeItem('siem_user');
   };
 
   // --------------------------------------------------------
@@ -171,7 +184,7 @@ function App() {
   // หน้าจอ Dashboard (ล็อกอินสำเร็จแล้ว)
   // --------------------------------------------------------
 
-  // NEW: สร้างตัวแปร filteredLogs เพื่อกรองข้อมูลตาม Dropdown ก่อนนำไปแสดงผล
+  // สร้างตัวแปร filteredLogs เพื่อกรองข้อมูลตาม Dropdown ก่อนนำไปแสดงผล
   const filteredLogs = logs.filter(log => filterSource === 'All' || log.source === filterSource);
 
   // คำนวณกราฟจากข้อมูลที่ถูก Filter แล้ว (ถ้าเลือก Firewall กราฟก็เปลี่ยนตาม)
@@ -241,7 +254,6 @@ function App() {
                   </div>
                   <div>
                     <p className="text-sm text-slate-500 font-medium">Total Events Detected</p>
-                    {/* เปลี่ยนมาใช้ length ของ filteredLogs แทน */}
                     <p className="text-3xl font-bold text-slate-800">{filteredLogs.length}</p>
                   </div>
                 </div>
@@ -264,7 +276,7 @@ function App() {
             </div>
 
             <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden mt-8">
-              {/* NEW: เพิ่ม Dropdown ที่มุมขวาของตาราง */}
+              {/* เพิ่ม Dropdown ที่มุมขวาของตาราง */}
               <div className="p-6 border-b border-slate-200 flex justify-between items-center">
                 <h2 className="text-lg font-semibold text-slate-700">Recent Logs Timeline</h2>
 
