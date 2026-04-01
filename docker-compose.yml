@@ -19,6 +19,7 @@ services:
     container_name: cyber_backend
     ports:
       - "5000:5000"
+      - "514:514/udp"
     environment:
       - DATABASE_URL=postgresql://admin:adminpassword@db:5432/log_management
     depends_on:
