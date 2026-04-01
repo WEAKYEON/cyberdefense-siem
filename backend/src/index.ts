@@ -137,12 +137,15 @@ udpServer.on('message', async (msg, rinfo) => {
         const logString = msg.toString();
         console.log(`[Syslog UDP] Received from ${rinfo.address}: ${logString}`);
 
+        const actionMatch = logString.match(/action=([a-zA-Z]+)/);
+        const eventType = actionMatch ? `traffic_${actionMatch[1]}` : 'syslog_event';
+
         // แปลง Text Syslog ให้เข้า Schema กลาง
         const normalized = {
             timestamp: new Date().toISOString(),
-            tenant: 'demo', // กำหนดเป็น default
+            tenant: 'demoA', // กำหนดเป็น default
             source: 'syslog_network',
-            event_type: 'syslog_event',
+            event_type: eventType,
             severity: 5,
             src_ip: rinfo.address,
             user_name: 'unknown',
