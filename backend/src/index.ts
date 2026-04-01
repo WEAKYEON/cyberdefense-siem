@@ -144,7 +144,7 @@ udpServer.on('message', async (msg, rinfo) => {
         const normalized = {
             timestamp: new Date().toISOString(),
             tenant: 'demoA', // กำหนดเป็น default
-            source: 'syslog_network',
+            source: 'firewall',
             event_type: eventType,
             severity: 5,
             src_ip: rinfo.address,
