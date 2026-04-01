@@ -51,19 +51,36 @@ docker-compose up --build -d
 ## การทดสอบยิง Log (Ingestion Test)
 1. **ผ่าน HTTP API (Port 5000):**
 **Endpoint:** `POST /api/logs`
-**Example Payload:**
+**Headers:** `Content-Type: application/json`
 
-```JSON
+**Example Payload (CrowdStrike / HTTP API):**
+```json
 {
   "tenant": "demoA",
-  "source": "Firewall",
-  "event_type": "Failed Login",
-  "severity": 4,
+  "source": "crowdstrike",
+  "event_type": "malware_detected",
+  "severity": 8,
   "src_ip": "192.168.1.100",
-  "user_name": "hacker_test"
+  "user_name": "unknown",
+  "action": "quarantine"
 }
 ```
+**Example Payload (จำลอง Brute Force Alert จาก Microsoft AD):**
+(หากยิง Payload นี้ซ้ำ 3 ครั้งภายใน 5 นาที ระบบจะสร้าง Alert ทันที)
+```json
+{
+  "tenant": "demoA",
+  "source": "ad",
+  "event_type": "LogonFailed",
+  "severity": 5,
+  "src_ip": "203.0.113.77",
+  "user_name": "demo\\eve",
+  "action": "deny"
+}
+```
+
 2. **ผ่าน Syslog UDP (Port 514)**
+รองรับข้อมูลจาก Network Devices เช่น Firewall หรือ Router ผ่านโปรโตคอล Syslog มาตรฐาน (RFC 5424) โดยระบบมี Normalizer Parser คอยแปลงข้อมูลดิบให้เป็น Schema กลางโดยอัตโนมัติ
 - **วิธีที่ 1 (Linux/Mac):** ใช้คำสั่ง Netcat (Linux/Mac) เพื่อจำลองการส่ง Syslog มาตรฐาน:
 ```Bash
 echo "<134>Mar 31 12:44:56 fw01 action=deny src=10.0.1.50 tenant=demoA" | nc -u -w1 127.0.0.1 514
